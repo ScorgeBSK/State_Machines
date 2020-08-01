@@ -19,27 +19,27 @@ tests = [
     
     {'description': 'init state ',
     'steps': [ {'inputs': [('PINA', 0x00)], 'iterations': 5 } ],
-    'expected': [('PORTB',0x01)],
+    'expected': [('PORTC',0x07)],
     },
         
-    {'description': 'init -> ButtonPressOn => PORTB = 0x02',
+    {'description': 'init -> increment => PORTC = 0x08',
     'steps': [ {'inputs': [('PINA',0x01)], 'iterations': 5 } ],
-    'expected': [('PORTB',0x02)],
+    'expected': [('PORTC',0x08)],
     },
 
-    {'description': 'ButtonPressOn -> ButtonReleaseOn => PORTB = 0x02',
-    'steps': [ {'inputs': [('PINA',0x00)], 'iterations': 5 }, ],
-    'expected': [('PORTB',0x02)],
+    {'description': 'output state  -> decrement -> output state  => PORTC = 0x07',
+    'steps': [ {'inputs': [('PINA',0x02)], 'iterations': 5 }, ],
+    'expected': [('PORTC',0x07)],
     },
 
-    {'description': 'ButtonReleaseOn -> ButtonPressOff => PORTB = 0x01',
+    {'description': 'output state -> resetPress => PORTBC= 0x00',
+    'steps': [ {'inputs': [('PINA',0x03)], 'iterations': 5 }, ],
+    'expected': [('PORTC',0x00)],
+    },
+
+    {'description': 'resetPress -> increment => PORTC = 0x01',
     'steps': [ {'inputs': [('PINA',0x01)], 'iterations': 5 }, ],
-    'expected': [('PORTB',0x01)],
-    },
-
-    {'description': 'ButtonPressOff -> init => PORTB = 0x01',
-    'steps': [ {'inputs': [('PINA',0x00)], 'iterations': 5 }, ],
-    'expected': [('PORTB',0x01)],
+    'expected': [('PORTC',0x01)],
     },
 
     ]

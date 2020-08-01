@@ -12,27 +12,35 @@
 #include "simAVRHeader.h"
 #endif
 
-enum States {start, init, ButtonPressOn, ButtonReleaseOn, ButtonPressOff} state;
+enum States {start, init, incrementPress, decrementPress, resetPress, resultRelease} state;
 
 void tick(){
-	unsigned char button = PINA & 0x01;
-	unsigned char leds = 0;
+	unsigned char button = PINA & 0x03;
+	unsigned char output = 0;
 	
 	switch(state){
 		case start:
 	       		state = init;
 			break;
 		case init:
-			state = button? ButtonPressOn: init;
+			state = (button == 0x01) ? incrementPress: init;
+			state = (button == 0x02) ? decrementPress: init;
+			state = (button == 0x03) ? resetPress: init;
 			break;
-		case ButtonPressOn:
-			state = button? ButtonPressOn: ButtonReleaseOn;
+		case incrementPress:
+			state = resultRelease;
 			break;
-		case ButtonReleaseOn:
-			state = button? ButtonPressOff: ButtonReleaseOn;
+		case decrementPress:
+			state = resultRelease;
 			break;
-		case ButtonPressOff:
-			state = button? ButtonPressOff: init;
+		case resetPress:
+			state = (button == 0x01) ? incrementPress: resetPress;
+                        state = (button == 0x02) ? decrementPress: resetPress;
+			break;
+		case resultRelease:
+			state = (button == 0x01) ? incrementPress: resultRelease;
+			state = (button == 0x02) ? decrementPress: resultRelease;
+			state = (button == 0x03) ? resetPress: resultRelease;
 			break;
 		default:
 			state = start;
@@ -41,28 +49,33 @@ void tick(){
 
 	switch(state){
                 case init:
-			leds = 1;
+			output = 7;
                         break;
-                case ButtonPressOn:
-                        leds = 2;
+                case incrementPress:
+                        output += 1;
 			break;
-                case ButtonReleaseOn:
-			leds = 2;
+                case decrementPress:
+			output -= 1;
                         break;
-                case ButtonPressOff:
-			leds = 1;
+                case resetPress:
+			output = 0;
+			break;
+		case resultRelease:
 			break;
 		default:
 			break;
-        }
+        
+	}
 
-	PORTB = leds;
+	PORTC = output;
+
+	
 }
 
 int main(void) {
     /* Insert DDR and PORT initializations */
     DDRA = 0x00; PORTA = 0xFF;
-    DDRB = 0xFF; PORTB = 0x00;
+    DDRC = 0xFF; PORTC = 0x07;
 
     /* Insert your solution below */
     while (1) {
