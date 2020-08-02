@@ -12,94 +12,52 @@
 #include "simAVRHeader.h"
 #endif
 
-enum States {start, init, incrementPress, decrementPress, resetPress, resultRelease} state;
+enum States {start, init, poundKey, yKey, xKey} state;
 
 void tick(){
-	unsigned char button = PINA & 0x03;
-	unsigned char output = 7;
+	unsigned char input = PINA & 0x07;
+	unsigned char lockButton = PINA & 0x80;
 
 	switch(state){
 		case start:
 	       		state = init;
 			break;
 		case init:
-			if (button == 0x01){ 
-			     	state = incrementPress;
+			if(input == 0x01){
+				state = xKey;
 			}
-			else if(button == 0x02){
-				state = decrementPress;
+			else if(input == 0x02){
+				state = yKey;
 			}
-			else if(button == 0x03){
-				state = resetPress;
+			else if(input == 0x04){
+				state = poundKey;
 			}
 			else{
 				state = init;
 			}
 			break;
-		case incrementPress:
-			state = resultRelease;
+		case xKey:
+			if(input == 0x02){
+                                state = yKey;
+                        }
+                        else if(input == 0x04){
+                                state = poundKey;
+                        }
 			break;
-		case decrementPress:
-			state = resultRelease;
+		case yKey:
 			break;
-		case resetPress:
-			if (button == 0x01){
-                                state = incrementPress;
-                        }
-                        else if(button == 0x02){
-                                state = decrementPress;
-                        }
-                        else{
-                                state = resetPress;
-                        }
-                        break;
-		case resultRelease:
-			if (button == 0x01){ 
-                                state = incrementPress;
-                        }
-                        else if(button == 0x02){
-                                state = decrementPress;
-                        }
-			else if(button == 0x03){
-				state = resetPress;
-			}
-                        else{
-                                state = resultRelease;
-                        }
-                        break;
-		default:
-			state = start;
-			break;	
+		case poundKey:
+			break;
 	}
 
 	switch(state){
                 case init:
-			output = 7;
                         break;
-                case incrementPress:
-                        output = output + 1;
-			if(output > 9){
-				output = 9;
-			}
-			break;
-		case decrementPress:
-			output = output - 1;
-			if(output < 0){
-				output = 0;
-			}
-			break;
-		case resetPress:
-			output = 0;
-			break;
-		case resultRelease:
-			output = output;
-			break;
-		default:
-			break;
-        
+       		default:
+			break;	
 	}
 
-	PORTC = output;
+	PORTB = PINA & 0x01;
 
 	
 }
@@ -107,7 +65,7 @@ void tick(){
 int main(void) {
     /* Insert DDR and PORT initializations */
     DDRA = 0x00; PORTA = 0xFF;
-    DDRC = 0xFF; PORTC = 0x07;
+    DDRB = 0xFF; PORTB = 0x00;
 
     /* Insert your solution below */
     while (1) {
