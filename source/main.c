@@ -1,7 +1,7 @@
 /*	Author: Trung Lam
  *  Partner(s) Name: 
  *	Lab Section: B22
- *	Assignment: Lab #4  Exercise #3
+ *	Assignment: Lab #4  Exercise #4
  *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
@@ -41,13 +41,10 @@ void tick(){
 			state = init;
 			break;
 		case yKey:
-			state = reLock;
 			break;
 		case poundKey:
-			state = yKey;
 			break;
 		case reLock:
-			state = init;
 			break;
 		default:
 			state = start;
@@ -65,6 +62,7 @@ void tick(){
 		case yKey:
 			if(door == 0x04){
 				door = 1;
+				state = reLock;
 			}
 			else{
 				state = init;
@@ -72,9 +70,10 @@ void tick(){
 			break;
 		case poundKey:
 			door = 0x04;
+			state = yKey;
 			break;
 		case reLock:
-			if(lockButton && (door == 1) ){
+			if( (lockButton && (door == 1)) ){
 				door = 0;
 			}
 			break;
